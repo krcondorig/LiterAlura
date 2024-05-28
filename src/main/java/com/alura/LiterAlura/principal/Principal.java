@@ -1,14 +1,12 @@
 package com.alura.LiterAlura.principal;
 
-import com.alura.LiterAlura.model.DatosAutor;
-import com.alura.LiterAlura.model.DatosLibro;
-
-import com.alura.LiterAlura.model.DatosResponse;
+import com.alura.LiterAlura.model.*;
 import com.alura.LiterAlura.service.ConsumoApi;
 import com.alura.LiterAlura.service.ConvierteDatos;
 
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
     private final ConsumoApi consumoApi = new ConsumoApi();
@@ -37,10 +35,12 @@ public class Principal {
 
             switch (opcion) {
                 case 1:
-                    buscarLibroPorNombre();
+                    buscarLibro();
                     break;
                 case 2:
                     buscarAutor();
+                    break;
+                case 3:
                     break;
                 case 0:
                     System.out.println("Cerrando la aplicación...");
@@ -52,65 +52,54 @@ public class Principal {
 
     }
 
-
-    private DatosResponse getDatosLibro() {
-        var json = consumoApi.obtenerDatos(URL_BASE);
+    private DatosLibroResult getDatosLibro() {
+        var nombreLibro = teclado.nextLine();
+        var json = consumoApi.obtenerDatos(URL_BASE + "?search="+ nombreLibro.replace(" ", "+"));
         System.out.println(json);
-        var datos = conversor.obtenerDatos(json, DatosResponse.class);
-        System.out.println("ent");
-        System.out.println(datos);
+        var datos = conversor.obtenerDatos(json, DatosLibroResult.class);
         return datos;
     }
-
-    private void buscarLibroPorNombre() {
-        System.out.println("*****************************************************");
-        System.out.println("Escribe el nombre del libro que deseas buscar");
-        String nombreLibro = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + "?search=" + nombreLibro);
-        var datosBusqueda = conversor.obtenerDatos(json, DatosResponse.class);
-        //System.out.println(datosBusqueda);
-        Optional<DatosLibro> libroBuscado = datosBusqueda.resultados().stream()
-                .filter(libro -> libro.titulo().toUpperCase().contains(nombreLibro.toUpperCase()))
+    private void buscarLibro() {
+        System.out.println("Ingresa el nombre del libro que desea buscar: ");
+        var datosLibro = getDatosLibro();
+        Optional<DatosLibro> libroBuscado = datosLibro.resultadosLibro().stream()
                 .findFirst();
         if (libroBuscado.isPresent()) {
-            System.out.println("Se encontro el libro");
-            System.out.println("Titulo: " + libroBuscado.get().titulo());
-            System.out.println("Autores: " + libroBuscado.get().autores());
-            for (var autor : libroBuscado.get().autores()) {
-                System.out.println("Nombre: " + autor.nombre());
-            }
-            System.out.println("Idiomas: " + libroBuscado.get().idiomas());
+            System.out.println("se ha encontrado el libro");
+            System.out.println("Libro: " + libroBuscado.get().titulo());
+            System.out.println("Autor: " + libroBuscado.get().autoresLibro().stream()
+                    .map(DatosAutor::nombre).collect(Collectors.joining(", ")));
             System.out.println("Descargas: " + libroBuscado.get().descargas());
-        } else {
-            System.out.println("No se encontro el libro");
+        }else {
+            System.out.println("No se ha encontrado el libro");
         }
-
     }
 
-    private void buscarAutor(){
-        System.out.println("*****************************************************");
-        System.out.println("Escribe el nombre del autor que deseas buscar");
-        String nombreAutor = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + "?search=" + nombreAutor);
-        var datosBusqueda = conversor.obtenerDatos(json, DatosResponse.class);
-        //System.out.println(datosBusqueda);
+    private Datos getDatosAutor() {
+        var nombreAutor = teclado.nextLine();
+        var json = consumoApi.obtenerDatos(URL_BASE + "?search="+ nombreAutor.replace(" ", "+"));
+        System.out.println(json);
+        var datos = conversor.obtenerDatos(json, Datos.class);
+        return datos;
 
-        Optional<DatosLibro> autorBuscado = datosBusqueda.resultados().stream()
-                .filter(libro -> libro.titulo().toUpperCase().contains(nombreAutor.toUpperCase()))
+    }
+    private void buscarAutor() {
+        System.out.println("Ingresa el nombre del autor que desea buscar: ");
+        var datosAutor = getDatosAutor();
+        Optional<DatosAutorResult> autorBuscado = datosAutor.resultadosDatos().stream()
                 .findFirst();
         if (autorBuscado.isPresent()) {
-            System.out.println("Se encontro el autor");
-            for (var autor : autorBuscado.get().autores()) {
-                System.out.println("Nombre: " + autor.nombre());
-                System.out.println("Nacimiento: " + autor.fechaNacimiento());
-                System.out.println("Descargas: " + autor.fechaFallecimiento());
-            }
-        } else {
-            System.out.println("No se encontro el autor");
+            System.out.println("se ha encontrado el autor");
+            System.out.println("Autor: " + autorBuscado.get().resultadoAutores().stream()
+                    .map(DatosAutor::nombre).collect(Collectors.joining(", ")));
+            System.out.println("Año de nacimiento: " + autorBuscado.get().resultadoAutores().stream()
+                    .map(DatosAutor::anioNacimiento).collect(Collectors.joining(", ")));
+            System.out.println("Año de fallecimiento: " + autorBuscado.get().resultadoAutores().stream()
+                    .map(DatosAutor::anioFallecimiento).collect(Collectors.joining(", ")));
+        }else {
+            System.out.println("No se ha encontrado el autor");
         }
-
     }
-
 
 
 
