@@ -34,7 +34,7 @@ Este proyecto es una aplicacion Java para consultar libros y autores. La aplicac
 1. Clona el repositorio en tu maquina local
 
     ```bash
-    git clone https://github.com/tu_usuario/literalura.git
+    git clone https://github.com/krcondorig/LiterAlura.git
     ```
 
 2. Agrega variables de entorno:
