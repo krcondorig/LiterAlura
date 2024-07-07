@@ -32,6 +32,9 @@ public class Principal {
         var opcion = -1;
         while (opcion != 0) {
             var menu = """
+                    ---------------------------------------------
+                                   MENU PRINCIPAL
+                    ---------------------------------------------
                     1 - Buscar Libro por titulo
                     2 - Listar libros registrados
                     3 - Listar autores registrados
@@ -39,10 +42,12 @@ public class Principal {
                     5 - Listar libros por idioma
                     6 - Top 10 libros con más descargas
                     7 - Algunas estadísticas
-                                  
+                                 
                     0 - Salir
+                    ---------------------------------------------                 
                     """;
-            System.out.println(menu);
+            System.out.print(menu);
+            System.out.print("Elija una opcion: ");
             opcion = teclado.nextInt();
             teclado.nextLine();
 
@@ -89,7 +94,7 @@ public class Principal {
     }
 
     private void buscarLibro() {
-        System.out.println("Escriba el nombre del libro");
+        System.out.print("Escriba el nombre del libro: ");
         var datos = getDatosLibro();
         //System.out.println(datos);
 
@@ -102,14 +107,15 @@ public class Principal {
             DatosAutor datosAutor = libroBuscado.get().autores().get(0);
             //System.out.println(datosAutor);
 
-            System.out.println(libroBuscado.get().idLibro());
+            //System.out.println(libroBuscado.get().idLibro());
             if (repositorioLibro.findByIdLibro(libroBuscado.get().idLibro()).isPresent()) {
+
                 System.out.println("Libro ya registrado en la bd");
             }else {
                 var libroEncontrado = """
-                        ****************
-                        Datos del Libro
-                        ****************
+                        **************************************
+                                    Datos del Libro
+                        **************************************
                         
                         Titulo: %s
                         Autor: %s                    
@@ -128,7 +134,7 @@ public class Principal {
                     System.out.println("Autor encontrado");
                     Libro libro = new Libro(libroBuscado.get());
                     libro.setAutor(autor.get());
-                    repositorioLibro.save(libro);
+                    //repositorioLibro.save(libro);
                 } else {
                     System.out.println("Autor no encontrado");
                     libros = libroBuscado.stream()
@@ -148,9 +154,9 @@ public class Principal {
 
     private void datosAutor(List<Autor> listaAutor) {
         var muestraAutor = """
-                ****************
-                Datos del autor
-                ****************
+                **************************************
+                            Datos del autor
+                **************************************
                 
                 Nombre: %s
                 Año de nacimiento: %s
@@ -168,14 +174,15 @@ public class Principal {
 
     private void datosLibro(List<Libro> listaLibro) {
         var muestraLibro = """
-                ****************
-                Datos del Libro
-                ****************
+                **************************************
+                            Datos del Libro
+                **************************************
                 
                 Titulo: %s
                 Autor: %s
                 Idiomas: %s
                 Descargas: %s
+                
                 """;
         listaLibro.forEach(l -> System.out.println(
                 muestraLibro.formatted(
@@ -191,12 +198,11 @@ public class Principal {
     private void listarLibros() {
         libros = repositorioLibro.findAll();
         var muestraListaLibros = """
-                *****************************
-                Lista de libros en Literalura
-                *****************************
-                
+                ****************************************************
+                            Lista de libros en Literalura
+                ****************************************************       
                 """;
-        System.out.println("\n" + muestraListaLibros + "\n");
+        System.out.print("\n" + muestraListaLibros + "\n");
         if (libros.isEmpty()) {
             System.out.println("No hay libros registrados");
         } else {
@@ -208,12 +214,11 @@ public class Principal {
 
     private void listarAutoresRegistrados() {
         var muestraListaAutores = """
-                ******************************
-                Lista de autores en Literalura
-                ******************************
-                
+                **************************************
+                    Lista de autores en Literalura
+                **************************************
                 """;
-        System.out.println("\n" + muestraListaAutores + "\n");
+        System.out.print("\n" + muestraListaAutores + "\n");
         autores = repositorioAutor.findAllByOrderByNombreAsc();
         if (autores.isEmpty()) {
             System.out.println("No hay autores registrados");
@@ -231,10 +236,9 @@ public class Principal {
             teclado.nextLine();
             autores = repositorioAutor.obtenerAutorVivoAnio(anio);
             var muestraAnioAutor = """
-                ***************************************************
-                Lista de autores vivos para el año %s en Literalura
-                ***************************************************
-                
+                *************************************************************
+                    Lista de autores vivos para el año %s en Literalura
+                *************************************************************
                 """;
             System.out.printf((muestraAnioAutor) + "%n", anio);
             //System.out.println("\n" + muestraAnioAutor + anio + "\n");
@@ -252,15 +256,14 @@ public class Principal {
 
     private void listarLibrosPorIdioma() {
         var muestraIdioma = """
-                ****************************
-                Lista de idiomas disponibles
-                ****************************
-                
+                **************************************
+                    Lista de idiomas disponibles
+                **************************************
                 """;
         var idiomasLibro = repositorioLibro.obtenerListaUnicaIdioma();
         var idiomasJson = consumoApi.obtenerDatos(URL_CODIGOS_IDIOMAS);
         var datosIdiomas = conversor.obtenerDatos(idiomasJson, DatosIdioma.class);
-        System.out.println(datosIdiomas);
+        //System.out.println(datosIdiomas);
         List<Idioma> idiomaDisponibles = new ArrayList<>();
         if (idiomasLibro.isEmpty()) {
             System.out.println("No hay libros con ese idioma registrado");
@@ -298,11 +301,12 @@ public class Principal {
             System.out.println("No hay libros registrados");
         } else {
             var muestraTop10Libros = """
-                        *********************************
-                        Top 10 libros con más descargados
-                        *********************************
-                        
-                    """;
+                            ********************************************************
+                                        Top 10 libros con más descargados
+                            ********************************************************
+                            
+                            """;
+            System.out.print(muestraTop10Libros);
             var cuentaLibros = libros.size();
             datosLibro(libros);
             System.out.println("Total de libros registrados: " + cuentaLibros);
@@ -314,9 +318,9 @@ public class Principal {
         libros = repositorioLibro.findAll();
 
         var muestraEstadisticas = """
-                ********************************
-                Datos estadisticos de Literalura
-                ********************************
+                ***************************************
+                    Datos estadisticos de Literalura
+                ***************************************
                 
                 Total de librps: %s
                 Libro mas descargado: %s
